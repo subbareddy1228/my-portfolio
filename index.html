@@ -452,32 +452,80 @@
   var c = certGroups[activeCertGroup].certs[idx];
   var container = document.getElementById('modalCertImg').parentNode;
   var dl = document.getElementById('modalDownload');
+  var g = certGroups[activeCertGroup];
+  var total = g.certs.length;
 
-  // Check if it's a PDF
   var isPDF = c.type === 'pdf' || c.src.toLowerCase().endsWith('.pdf');
 
   if (isPDF) {
-    // Remove old img, show iframe
     container.innerHTML = `
-      <iframe src="${c.src}" 
-        style="width:100%; height:500px; border:none; border-radius:10px; display:block;">
-      </iframe>
+      <div style="position:relative;">
+        <!-- Left Arrow -->
+        ${idx > 0 ? `<button onclick="showCert(${idx-1});renderTabs();activeCertIdx=${idx-1};" 
+          style="position:absolute;left:-20px;top:50%;transform:translateY(-50%);
+          width:40px;height:40px;border-radius:50%;background:white;border:1px solid #e5e7eb;
+          font-size:18px;cursor:pointer;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.15);
+          display:flex;align-items:center;justify-content:center;">‹</button>` : ''}
+
+        <iframe src="${c.src}#toolbar=0"
+          style="width:100%;height:500px;border:none;border-radius:10px;display:block;">
+        </iframe>
+
+        <!-- Right Arrow -->
+        ${idx < total-1 ? `<button onclick="showCert(${idx+1});renderTabs();activeCertIdx=${idx+1};"
+          style="position:absolute;right:-20px;top:50%;transform:translateY(-50%);
+          width:40px;height:40px;border-radius:50%;background:white;border:1px solid #e5e7eb;
+          font-size:18px;cursor:pointer;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.15);
+          display:flex;align-items:center;justify-content:center;">›</button>` : ''}
+
+        <!-- Page indicator -->
+        <div style="text-align:center;margin-top:10px;font-size:12px;color:#6b7280;">
+          ${idx+1} / ${total}
+        </div>
+
+        <a href="${c.src}" target="_blank"
+           style="display:block;text-align:center;margin-top:6px;color:#2767b1;
+           font-size:13px;font-weight:600;text-decoration:none;">
+          🔗 Open PDF in new tab if not loading
+        </a>
+      </div>
       <img id="modalCertImg" src="" style="display:none;" />
     `;
-    dl.href = c.src;
-    dl.download = c.label + '.pdf';
-    dl.textContent = '⬇ Download PDF';
   } else {
-    // Show image normally
     container.innerHTML = `
-      <img id="modalCertImg" src="${c.src}" alt="Certificate"
-        style="width:100%; border-radius:10px; display:block; box-shadow:0 4px 20px rgba(0,0,0,0.12);" />
+      <div style="position:relative;">
+        <!-- Left Arrow -->
+        ${idx > 0 ? `<button onclick="showCert(${idx-1});renderTabs();activeCertIdx=${idx-1};"
+          style="position:absolute;left:-20px;top:50%;transform:translateY(-50%);
+          width:40px;height:40px;border-radius:50%;background:white;border:1px solid #e5e7eb;
+          font-size:18px;cursor:pointer;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.15);
+          display:flex;align-items:center;justify-content:center;">‹</button>` : ''}
+
+        <img src="${c.src}" alt="Certificate"
+          style="width:100%;border-radius:10px;display:block;
+          box-shadow:0 4px 20px rgba(0,0,0,0.12);" />
+
+        <!-- Right Arrow -->
+        ${idx < total-1 ? `<button onclick="showCert(${idx+1});renderTabs();activeCertIdx=${idx+1};"
+          style="position:absolute;right:-20px;top:50%;transform:translateY(-50%);
+          width:40px;height:40px;border-radius:50%;background:white;border:1px solid #e5e7eb;
+          font-size:18px;cursor:pointer;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.15);
+          display:flex;align-items:center;justify-content:center;">›</button>` : ''}
+
+        <!-- Page indicator -->
+        <div style="text-align:center;margin-top:10px;font-size:12px;color:#6b7280;">
+          ${idx+1} / ${total}
+        </div>
+      </div>
+      <img id="modalCertImg" src="" style="display:none;" />
     `;
-    dl.href = c.src;
-    dl.download = c.label + (c.src.startsWith('data:') ? '.svg' : '');
-    dl.textContent = '⬇ Download Certificate';
   }
-}
+
+  dl.href = c.src;
+  dl.download = c.label + (isPDF ? '.pdf' : '');
+  dl.textContent = isPDF ? '⬇ Download PDF' : '⬇ Download Certificate';
+  }
+
 
     function closeCertModal() {
       document.getElementById('certModal').style.display = 'none';
